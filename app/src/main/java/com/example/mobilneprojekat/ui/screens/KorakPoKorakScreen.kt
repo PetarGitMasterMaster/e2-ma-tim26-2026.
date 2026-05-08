@@ -1,15 +1,23 @@
 package com.example.mobilneprojekat.ui.screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 
 @Composable
-fun KorakPoKorakScreen() {
+fun KorakPoKorakScreen(navController: NavController) {
 
     val koraci = listOf(
         "Korak 1",
@@ -28,11 +36,57 @@ fun KorakPoKorakScreen() {
             .fillMaxSize()
             .padding(24.dp)
     ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(75.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFF3F51B5))
+                    .border(
+                        4.dp,
+                        MaterialTheme.colorScheme.primary,
+                        CircleShape
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
 
-        Text(
-            text = "Korak po korak",
-            style = MaterialTheme.typography.headlineMedium
-        )
+                Text(
+                    text = "Avatar 1",
+                    color = Color.White
+                )
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Text(
+                text = "<----- Player 1 turn",
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Box(
+                modifier = Modifier
+                    .size(75.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFFE91E63))
+                    .border(
+                        4.dp,
+                        MaterialTheme.colorScheme.primary,
+                        CircleShape
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+
+                Text(
+                    text = "Avatar 2",
+                    color = Color.White
+                )
+            }
+        }
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -77,6 +131,14 @@ fun KorakPoKorakScreen() {
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Potvrdi")
+        }
+        Button(
+            onClick = {
+                navController.navigate("profil")
+            }
+        ) {
+
+            Text("Nazad na profil")
         }
     }
 }

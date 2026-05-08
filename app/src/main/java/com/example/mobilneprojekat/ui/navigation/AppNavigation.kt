@@ -32,11 +32,11 @@ fun AppNavigation() {
         }
 
         composable("korak") {
-            KorakPoKorakScreen()
+            KorakPoKorakScreen(navController)
         }
 
         composable("mojbroj") {
-            MojBrojScreen()
+            MojBrojScreen(navController)
         }
 
         composable("profil") {
