@@ -22,7 +22,18 @@ fun SelectScreen(navController: NavController) {
             style = MaterialTheme.typography.headlineLarge
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedButton(
+            onClick = {
+                navController.navigate("profil")
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Profile Details")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = {
@@ -42,6 +53,28 @@ fun SelectScreen(navController: NavController) {
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Moj broj")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = {
+                navController.navigate("koznazna")
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Ko zna zna")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = {
+                navController.navigate("spojnice")
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Spojnice")
         }
 
         Spacer(modifier = Modifier.height(16.dp))
