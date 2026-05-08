@@ -78,11 +78,11 @@ fun KoZnaZnaScreen(navController: NavController) {
     )
 
     var currentQuestionIndex by remember {
-        mutableStateOf(0)
+        mutableIntStateOf(0)
     }
 
     var score by remember {
-        mutableStateOf(0)
+        mutableIntStateOf(0)
     }
 
     var selectedAnswer by remember {
@@ -99,7 +99,6 @@ fun KoZnaZnaScreen(navController: NavController) {
 
     val currentQuestion = questions[currentQuestionIndex]
 
-    // AUTOMATSKI PRELAZ NA SLEDEĆE PITANJE
     LaunchedEffect(answerChecked) {
 
         if (answerChecked) {
@@ -220,11 +219,11 @@ fun KoZnaZnaScreen(navController: NavController) {
 
                 Button(
                     onClick = {
-                        navController.navigate("profil")
+                        navController.navigate("select")
                     }
                 ) {
 
-                    Text("Nazad na profil")
+                    Text("Nazad")
                 }
             }
         }

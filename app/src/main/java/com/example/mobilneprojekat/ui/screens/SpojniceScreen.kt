@@ -25,8 +25,8 @@ fun SpojniceScreen(navController: NavController) {
     val leftItems = remember { correctPairs.map { it.first } }
     val rightItems = remember { correctPairs.map { it.second }.shuffled() }
 
-    var currentIndex by remember { mutableStateOf(0) }
-    var score by remember { mutableStateOf(0) }
+    var currentIndex by remember { mutableIntStateOf(0) }
+    var score by remember { mutableIntStateOf(0) }
 
     var matches by remember { mutableStateOf(listOf<Pair<String, String>>()) }
 
@@ -62,8 +62,8 @@ fun SpojniceScreen(navController: NavController) {
                 val isMatched = matches.any { it.first == item }
 
                 val color = when {
-                    isMatched -> Color(0xFF2196F3) // blue
-                    isActive -> Color(0xFFE3F2FD)   // current
+                    isMatched -> Color(0xFF2196F3)
+                    isActive -> Color(0xFFE3F2FD)
                     else -> Color(0xFFF5F5F5)
                 }
 
@@ -96,7 +96,7 @@ fun SpojniceScreen(navController: NavController) {
                 val isMatched = matches.any { it.second == right }
 
                 val color = when {
-                    isMatched -> Color(0xFF2196F3) // correct match stays blue
+                    isMatched -> Color(0xFF2196F3)
                     else -> Color(0xFFC8E6C9)
                 }
 
@@ -136,7 +136,7 @@ fun SpojniceScreen(navController: NavController) {
         if (currentIndex >= leftItems.size) {
 
             Button(
-                onClick = { navController.navigate("profil") },
+                onClick = { navController.navigate("select") },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Kraj igre")
