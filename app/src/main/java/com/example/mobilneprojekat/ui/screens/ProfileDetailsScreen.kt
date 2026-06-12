@@ -8,7 +8,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,21 +17,46 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
+import com.google.firebase.firestore.FirebaseFirestore
+import com.example.mobilneprojekat.data.model.UserProfile
+
 @Composable
 fun ProfileDetailsScreen(navController: NavController) {
+
+    val db = remember { FirebaseFirestore.getInstance() }
+
+    var userProfile by remember {
+        mutableStateOf(UserProfile())
+    }
 
     var avatarColor by remember {
         mutableStateOf(Color(0xFF3F51B5))
     }
 
-    val statistics = listOf(
-        "Ko zna zna" to 72,
-        "Moj broj" to 61,
-        "Korak po korak" to 55,
-        "Asocijacije" to 80,
-        "Skočko" to 47,
-        "Spojnice" to 91
-    )
+    // 🔥 FETCH FIRESTORE USER
+    LaunchedEffect(Unit) {
+        db.collection("users")
+            .document("testUser")
+            .get()
+            .addOnSuccessListener { doc ->
+                val data = doc.toObject(UserProfile::class.java)
+                if (data != null) {
+                    userProfile = data
+                    avatarColor = Color(data.avatarColor)
+                }
+            }
+    }
+
+    val statistics = userProfile.stats.toList().ifEmpty {
+        listOf(
+            "Ko zna zna" to 0,
+            "Moj broj" to 0,
+            "Korak po korak" to 0,
+            "Asocijacije" to 0,
+            "Skočko" to 0,
+            "Spojnice" to 0
+        )
+    }
 
     LazyColumn(
         modifier = Modifier
@@ -42,7 +66,6 @@ fun ProfileDetailsScreen(navController: NavController) {
     ) {
 
         item {
-
             Text(
                 text = "Profil korisnika",
                 style = MaterialTheme.typography.headlineLarge
@@ -50,7 +73,6 @@ fun ProfileDetailsScreen(navController: NavController) {
         }
 
         item {
-
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp)
@@ -68,13 +90,8 @@ fun ProfileDetailsScreen(navController: NavController) {
                             .size(110.dp)
                             .clip(CircleShape)
                             .background(avatarColor)
-                            .border(
-                                4.dp,
-                                MaterialTheme.colorScheme.primary,
-                                CircleShape
-                            )
+                            .border(4.dp, MaterialTheme.colorScheme.primary, CircleShape)
                             .clickable {
-
                                 avatarColor =
                                     if (avatarColor == Color(0xFF3F51B5))
                                         Color(0xFFE91E63)
@@ -83,23 +100,19 @@ fun ProfileDetailsScreen(navController: NavController) {
                             },
                         contentAlignment = Alignment.Center
                     ) {
-
-                        Text(
-                            text = "Avatar",
-                            color = Color.White
-                        )
+                        Text("Avatar", color = Color.White)
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Text(
-                        text = "player1",
+                        text = userProfile.username,
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold
                     )
 
                     Text(
-                        text = "player1@gmail.com",
+                        text = userProfile.email,
                         color = Color.Gray
                     )
 
@@ -110,7 +123,7 @@ fun ProfileDetailsScreen(navController: NavController) {
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("Broj tokena")
-                        Text("120")
+                        Text("${userProfile.tokens}")
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -120,7 +133,7 @@ fun ProfileDetailsScreen(navController: NavController) {
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("Ukupan broj zvezda")
-                        Text("54")
+                        Text("${userProfile.stars}")
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -130,7 +143,7 @@ fun ProfileDetailsScreen(navController: NavController) {
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("Liga")
-                        Text("Gold 🏆")
+                        Text(userProfile.league)
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -140,14 +153,13 @@ fun ProfileDetailsScreen(navController: NavController) {
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("Region")
-                        Text("Srbija")
+                        Text(userProfile.region)
                     }
                 }
             }
         }
 
         item {
-
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp)
@@ -181,7 +193,6 @@ fun ProfileDetailsScreen(navController: NavController) {
                                 .background(Color.White),
                             contentAlignment = Alignment.Center
                         ) {
-
                             Text("QR")
                         }
                     }
@@ -190,7 +201,6 @@ fun ProfileDetailsScreen(navController: NavController) {
         }
 
         item {
-
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp)
@@ -208,28 +218,25 @@ fun ProfileDetailsScreen(navController: NavController) {
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    statistics.forEach {
+                    statistics.forEach { (name, value) ->
 
-                        Text(
-                            text = it.first,
-                            fontWeight = FontWeight.SemiBold
-                        )
+                        Text(name, fontWeight = FontWeight.SemiBold)
 
                         Spacer(modifier = Modifier.height(6.dp))
 
                         LinearProgressIndicator(
-                            progress = { it.second / 100f },
+                            progress = { value / 100f },
                             modifier = Modifier.fillMaxWidth()
                         )
 
                         Spacer(modifier = Modifier.height(4.dp))
 
-                        Text("${it.second}%")
+                        Text("$value%")
 
                         Spacer(modifier = Modifier.height(20.dp))
                     }
 
-                    HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
+                    HorizontalDivider()
 
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -238,7 +245,7 @@ fun ProfileDetailsScreen(navController: NavController) {
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("Ukupan broj partija")
-                        Text("248")
+                        Text("${userProfile.totalGames}")
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -248,7 +255,7 @@ fun ProfileDetailsScreen(navController: NavController) {
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("Pobede")
-                        Text("64%")
+                        Text("${userProfile.winRate}%")
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -258,7 +265,7 @@ fun ProfileDetailsScreen(navController: NavController) {
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("Porazi")
-                        Text("36%")
+                        Text("${userProfile.lossRate}%")
                     }
                 }
             }
@@ -267,9 +274,7 @@ fun ProfileDetailsScreen(navController: NavController) {
         item {
 
             Button(
-                onClick = {
-                    navController.navigate("select")
-                },
+                onClick = { navController.navigate("select") },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Nazad")
@@ -278,9 +283,7 @@ fun ProfileDetailsScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(12.dp))
 
             OutlinedButton(
-                onClick = {
-                    navController.navigate("login")
-                },
+                onClick = { navController.navigate("login") },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Logout")
