@@ -25,6 +25,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import com.example.mobilneprojekat.data.model.UserProfile
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 fun LoginScreen(navController: NavController) {
@@ -32,6 +34,7 @@ fun LoginScreen(navController: NavController) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var error by remember { mutableStateOf("") }
+    val db = remember { FirebaseFirestore.getInstance() }
 
     Column(
         modifier = Modifier
@@ -81,7 +84,18 @@ fun LoginScreen(navController: NavController) {
                     error = "Popuni sva polja"
                 } else {
                     error = ""
-                    navController.navigate("select")
+                    db.collection("users")
+                        .document(username)
+                        .get()
+                        .addOnSuccessListener { doc ->
+                            val data = doc.toObject(UserProfile::class.java)
+                            if (data != null) {
+                                if(data.password == password){
+                                    navController.navigate("select")
+                                }
+                            }
+                        }
+
                 }
             },
             modifier = Modifier.fillMaxWidth()

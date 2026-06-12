@@ -30,6 +30,7 @@ class MainActivity : ComponentActivity() {
             "stars" to 54,
             "league" to "Gold 🏆",
             "region" to "Srbija",
+            "password" to "Cane",
             "avatarColor" to 0xFF3F51B5,
             "stats" to mapOf(
                 "koZnaZna" to 72,

@@ -11,5 +11,6 @@ data class UserProfile(
     val stats: Map<String, Int> = emptyMap(),
     val totalGames: Int = 0,
     val winRate: Int = 0,
-    val lossRate: Int = 0
+    val lossRate: Int = 0,
+    var password: String = ""
 )

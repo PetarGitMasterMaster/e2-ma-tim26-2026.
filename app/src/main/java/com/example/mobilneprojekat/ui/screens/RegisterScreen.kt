@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 fun RegisterScreen(navController: NavController) {
@@ -101,6 +102,35 @@ fun RegisterScreen(navController: NavController) {
                     error = "Lozinke se ne poklapaju"
                 } else {
                     error = ""
+                    FirebaseFirestore.getInstance()
+                    val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+
+                    val user = hashMapOf(
+                        "username" to username,
+                        "email" to email,
+                        "tokens" to 0,
+                        "stars" to 0,
+                        "league" to "Nista",
+                        "region" to region,
+                        "password" to password,
+                        "avatarColor" to 0xFF3F51B5,
+                        "stats" to mapOf(
+                            "koZnaZna" to 0,
+                            "mojBroj" to 0,
+                            "korakPoKorak" to 0,
+                            "asocijacije" to 0,
+                            "skocko" to 0,
+                            "spojnica" to 0
+                        ),
+                        "totalGames" to 0,
+                        "winRate" to 0,
+                        "lossRate" to 0
+                    )
+
+                    db.collection("users")
+                        .document(email)
+                        .set(user)
+
                     navController.navigate("login")
                 }
             },

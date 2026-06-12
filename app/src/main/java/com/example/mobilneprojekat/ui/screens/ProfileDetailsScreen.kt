@@ -33,7 +33,7 @@ fun ProfileDetailsScreen(navController: NavController) {
         mutableStateOf(Color(0xFF3F51B5))
     }
 
-    // 🔥 FETCH FIRESTORE USER
+    // FETCH FIRESTORE USER
     LaunchedEffect(Unit) {
         db.collection("users")
             .document("testUser")
