@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "490643534931",
+    "project_id": "brboc-dbd77",
+    "storage_bucket": "brboc-dbd77.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:490643534931:android:0cc723ddff161ef83502a6",
+        "android_client_info": {
+          "package_name": "com.example.mobilneprojekat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlhGtLuwnNXsfdcp_TgZlZm1sCXY5tj4M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
