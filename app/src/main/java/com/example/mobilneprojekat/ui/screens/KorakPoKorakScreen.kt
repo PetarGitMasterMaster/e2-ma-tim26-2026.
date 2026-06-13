@@ -47,7 +47,7 @@ fun KorakPoKorakScreen(navController: NavController) {
         )
     )
 
-
+    var rounds by remember {mutableStateOf(1)}
 
     var currentPuzzleIndex by remember { mutableStateOf(0) }
     var revealedHints by remember { mutableStateOf(1) }
@@ -79,11 +79,20 @@ fun KorakPoKorakScreen(navController: NavController) {
         message = "Vreme je isteklo!"
 
         currentPlayer =
-            if (currentPlayer == 1) 2 else 3
+            if (currentPlayer == 1) 2 else 1
+
+
 
         while (seconds > -10) {
             delay(1000)
             seconds--
+        }
+
+        if(currentPlayer == 1){
+            rounds++
+        }
+        if(rounds == 3){
+            navController.navigate("profil")
         }
 
         revealedHints = 1
@@ -97,6 +106,13 @@ fun KorakPoKorakScreen(navController: NavController) {
         if(seconds > 0){
             currentPlayer =
                 if (currentPlayer == 1) 2 else 1
+
+            if(currentPlayer == 1){
+                rounds++
+            }
+            if(rounds == 3){
+                navController.navigate("profil")
+            }
         }
 
         revealedHints = 1
@@ -265,7 +281,7 @@ fun KorakPoKorakScreen(navController: NavController) {
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = message,
+            text = "Runda broj " + rounds.toString(),
             color = MaterialTheme.colorScheme.primary
         )
 
