@@ -1,5 +1,6 @@
 package com.example.mobilneprojekat.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -8,6 +9,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun RegisterScreen(navController: NavController) {
@@ -104,6 +106,7 @@ fun RegisterScreen(navController: NavController) {
                     error = ""
                     FirebaseFirestore.getInstance()
                     val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                    val auth = FirebaseAuth.getInstance()
 
                     val user = hashMapOf(
                         "username" to username,
@@ -127,11 +130,24 @@ fun RegisterScreen(navController: NavController) {
                         "lossRate" to 0
                     )
 
-                    db.collection("users")
-                        .document(email)
-                        .set(user)
+                    auth.createUserWithEmailAndPassword(email, password)
+                        .addOnSuccessListener { result ->
 
-                    navController.navigate("login")
+                            val uid = result.user!!.uid
+
+                            db.collection("users")
+                                .document(uid)
+                                .set(user)
+
+                            result.user?.sendEmailVerification()
+                            navController.navigate("login")
+
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("FIREBASE", "Registration failed", e)
+                        }
+
+
                 }
             },
             modifier = Modifier.fillMaxWidth()

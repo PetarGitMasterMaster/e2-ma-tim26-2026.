@@ -26,6 +26,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.example.mobilneprojekat.data.model.UserProfile
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
@@ -80,20 +81,26 @@ fun LoginScreen(navController: NavController) {
 
         Button(
             onClick = {
+                val auth = FirebaseAuth.getInstance()
+
                 if (username.isBlank() || password.isBlank()) {
                     error = "Popuni sva polja"
                 } else {
                     error = ""
-                    db.collection("users")
-                        .document(username)
-                        .get()
-                        .addOnSuccessListener { doc ->
-                            val data = doc.toObject(UserProfile::class.java)
-                            if (data != null) {
-                                if(data.password == password){
-                                    navController.navigate("select")
-                                }
+                    auth.signInWithEmailAndPassword(username, password)
+                        .addOnSuccessListener {
+
+                            val user = auth.currentUser
+
+                            if (user?.isEmailVerified == true) {
+                                navController.navigate("select")
+                            } else {
+                                error = "Verify your mail"
                             }
+
+                        }
+                        .addOnFailureListener {
+
                         }
 
                 }
