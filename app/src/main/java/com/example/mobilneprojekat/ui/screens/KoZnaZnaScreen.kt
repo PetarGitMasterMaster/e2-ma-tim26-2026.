@@ -1,10 +1,16 @@
 package com.example.mobilneprojekat.ui.screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -20,211 +26,198 @@ fun KoZnaZnaScreen(navController: NavController) {
     )
 
     val questions = listOf(
-
-        Question(
-            question = "Glavni grad Srbije?",
-            answers = listOf(
-                "Beograd",
-                "Novi Sad",
-                "Niš",
-                "Kragujevac"
-            ),
-            correctAnswer = "Beograd"
-        ),
-
-        Question(
-            question = "Koliko je 5 + 5?",
-            answers = listOf(
-                "8",
-                "9",
-                "10",
-                "11"
-            ),
-            correctAnswer = "10"
-        ),
-
-        Question(
-            question = "Najveća planeta Sunčevog sistema?",
-            answers = listOf(
-                "Mars",
-                "Jupiter",
-                "Zemlja",
-                "Venera"
-            ),
-            correctAnswer = "Jupiter"
-        ),
-
-        Question(
-            question = "Koja boja nastaje mešanjem plave i žute?",
-            answers = listOf(
-                "Crvena",
-                "Zelena",
-                "Narandžasta",
-                "Ljubičasta"
-            ),
-            correctAnswer = "Zelena"
-        ),
-
-        Question(
-            question = "Koliko kontinenata postoji?",
-            answers = listOf(
-                "5",
-                "6",
-                "7",
-                "8"
-            ),
-            correctAnswer = "7"
-        )
+        Question("Glavni grad Srbije?", listOf("Beograd", "Novi Sad", "Niš", "Kragujevac"), "Beograd"),
+        Question("Koliko je 5 + 5?", listOf("8", "9", "10", "11"), "10"),
+        Question("Najveća planeta?", listOf("Mars", "Jupiter", "Zemlja", "Venera"), "Jupiter"),
+        Question("Plava + žuta?", listOf("Crvena", "Zelena", "Narandžasta", "Ljubičasta"), "Zelena"),
+        Question("Kontinenti?", listOf("5", "6", "7", "8"), "7")
     )
 
-    var currentQuestionIndex by remember {
-        mutableIntStateOf(0)
-    }
+    var index by remember { mutableIntStateOf(0) }
 
-    var score by remember {
-        mutableIntStateOf(0)
-    }
+    var scoreP1 by remember { mutableIntStateOf(0) }
+    var scoreP2 by remember { mutableIntStateOf(0) }
 
-    var selectedAnswer by remember {
-        mutableStateOf<String?>(null)
-    }
+    var questionTime by remember { mutableIntStateOf(5) }
 
-    var answerChecked by remember {
-        mutableStateOf(false)
-    }
+    var answered by remember { mutableStateOf(false) }
 
-    var gameFinished by remember {
-        mutableStateOf(false)
-    }
+    var p1Time by remember { mutableStateOf<Long?>(null) }
+    var p2Time by remember { mutableStateOf<Long?>(null) }
 
-    val currentQuestion = questions[currentQuestionIndex]
+    var showAnswers by remember { mutableStateOf<Boolean>(false) }
 
-    LaunchedEffect(answerChecked) {
+    val q = questions[index]
+    var startTime by remember { mutableStateOf(0L) }
+    var gameFinished by remember { mutableStateOf(false) }
 
-        if (answerChecked) {
+    // QUESTION TIMER 5s
+    LaunchedEffect(index, gameFinished) {
+        if(gameFinished)
+        {
+            return@LaunchedEffect
+        }
+        questionTime = 5
+        answered = false
+        p1Time = null
+        p2Time = null
 
-            delay(1500)
+        showAnswers = false
+        delay(3000)
+        showAnswers = true
+        startTime = System.currentTimeMillis()
 
-            if (currentQuestionIndex < questions.lastIndex) {
+        while (questionTime > 0 && !answered) {
+            delay(1000)
+            questionTime--
+        }
 
-                currentQuestionIndex++
-                selectedAnswer = null
-                answerChecked = false
+        if (!answered && index < questions.lastIndex) {
+            index++
+            return@LaunchedEffect
+        }
 
-            } else {
+        if (index == questions.lastIndex && answered) {
+            gameFinished = true
+        }
 
-                gameFinished = true
-            }
+        if (index == questions.lastIndex && questionTime <= 0) {
+            gameFinished = true
         }
     }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Center
+            .padding(24.dp)
+            .verticalScroll(rememberScrollState())
     ) {
 
-        Text(
-            text = "Ko zna zna",
-            style = MaterialTheme.typography.headlineLarge
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
 
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Text(
-            text = "Pitanje ${currentQuestionIndex + 1}/5",
-            style = MaterialTheme.typography.titleMedium
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = "Score: $score",
-            style = MaterialTheme.typography.titleMedium
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        if (!gameFinished) {
-
-            Text(
-                text = currentQuestion.question,
-                style = MaterialTheme.typography.headlineSmall
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            currentQuestion.answers.forEach { answer ->
-
-                val buttonColor = when {
-
-                    !answerChecked -> MaterialTheme.colorScheme.primary
-
-                    answer == currentQuestion.correctAnswer -> Color.Green
-
-                    answer == selectedAnswer &&
-                            answer != currentQuestion.correctAnswer -> Color.Red
-
-                    else -> MaterialTheme.colorScheme.primary
-                }
-
-                Button(
-                    onClick = {
-
-                        if (!answerChecked) {
-
-                            selectedAnswer = answer
-                            answerChecked = true
-
-                            if (answer == currentQuestion.correctAnswer) {
-                                score += 10
-                            } else {
-                                score -= 5
-                            }
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = buttonColor
+            Box(
+                modifier = Modifier
+                    .size(75.dp)
+                    .clip(CircleShape)
+                    .background(
+                        Color(0xFF3F51B5)
+                    )
+                    .border(
+                        4.dp,
+                        MaterialTheme.colorScheme.primary,
+                        CircleShape
                     ),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-
-                    Text(answer)
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
+                contentAlignment = Alignment.Center
+            ) {
+                Text("P1", color = Color.White)
             }
 
-        } else {
+            Spacer(modifier = Modifier.weight(1f))
 
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
+            Text(
+                text = if (index <= questions.lastIndex) "Ko zna zna" else "Kraj Igre",
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Box(
+                modifier = Modifier
+                    .size(75.dp)
+                    .clip(CircleShape)
+                    .background(
+                        Color(0xFFE91E63)
+                    )
+                    .border(
+                        4.dp,
+                        MaterialTheme.colorScheme.primary,
+                        CircleShape
+                    ),
+                contentAlignment = Alignment.Center
             ) {
+                Text("P2", color = Color.White)
+            }
+        }
 
-                Text(
-                    text = "Igra završena!",
-                    style = MaterialTheme.typography.headlineMedium
-                )
+        Spacer(modifier = Modifier.height(20.dp))
 
-                Spacer(modifier = Modifier.height(16.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Poeni P1: $scoreP1",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            Text(
+                text = "Poeni P2: $scoreP2",
+                style = MaterialTheme.typography.titleMedium
+            )
+        }
 
-                Text(
-                    text = "Konačan rezultat: $score",
-                    style = MaterialTheme.typography.titleLarge
-                )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Preostalo vreme: $questionTime s",
+                style = MaterialTheme.typography.titleLarge
+            )
+        }
 
-                Spacer(modifier = Modifier.height(24.dp))
+        // =================================================
+
+        Spacer(modifier = Modifier.height(24.dp))
+        if(!gameFinished) Text(q.question)
+
+        if (!gameFinished && index <= questions.lastIndex && showAnswers) {
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            q.answers.forEach { ans ->
 
                 Button(
+                    modifier = Modifier.fillMaxWidth(),
                     onClick = {
-                        navController.navigate("select")
+
+                        if (answered) return@Button
+
+                        val now = System.currentTimeMillis()
+
+                        if (p1Time == null) p1Time = now - startTime
+                        if (p2Time == null) p2Time = 3000L
+
+                        answered = true
+
+                        val p1Correct = ans == q.correctAnswer
+
+                        if (p1Correct) {
+                            if (p1Time!! < 3000L) scoreP1 += 10
+                            else scoreP2 += 10
+                        } else {
+                            scoreP1 -= 5
+                        }
+
+                        if (index < questions.lastIndex) index++
+                        else gameFinished = true
                     }
                 ) {
-
-                    Text("Nazad")
+                    Text(ans)
                 }
+
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+        } else if (index > questions.lastIndex || gameFinished) {
+            Button(
+                onClick = { navController.navigate("select") },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Kraj igre")
             }
         }
     }

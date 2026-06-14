@@ -1,5 +1,6 @@
 package com.example.mobilneprojekat.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -16,9 +17,41 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
+import androidx.compose.ui.layout.ContentScale
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.example.mobilneprojekat.data.model.UserProfile
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.storage.FirebaseStorage
+
+fun uploadAvatar(uri: Uri, uid: String, onSuccess: (String) -> Unit) {
+    Log.d("UPLOAD", "START upload for $uid")
+
+    val ref = FirebaseStorage.getInstance()
+        .reference
+        .child("avatars/$uid.jpg")
+
+    ref.putFile(uri)
+        .addOnSuccessListener {
+            Log.d("UPLOAD", "PUT FILE SUCCESS")
+
+            ref.downloadUrl
+                .addOnSuccessListener {
+                    Log.d("UPLOAD", "DOWNLOAD URL = $it")
+                    onSuccess(it.toString())
+                }
+                .addOnFailureListener {
+                    Log.e("UPLOAD", "downloadUrl FAILED", it)
+                }
+        }
+        .addOnFailureListener {
+            Log.e("UPLOAD", "PUT FILE FAILED", it)
+        }
+}
 
 @Composable
 fun ProfileDetailsScreen(navController: NavController) {
@@ -33,17 +66,50 @@ fun ProfileDetailsScreen(navController: NavController) {
         mutableStateOf(Color(0xFF3F51B5))
     }
 
-    // FETCH FIRESTORE USER
-    LaunchedEffect(Unit) {
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+
+    val uid = FirebaseAuth.getInstance().currentUser!!.uid
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+
+        selectedImageUri = uri
+
+        if (uri != null) {
+            uploadAvatar(uri, uid) { url ->
+
+                db.collection("users")
+                    .document(uid)
+                    .update("avatarUrl", url)
+
+                userProfile = userProfile.copy(
+                    avatarUrl = url
+                )
+            }
+        }
+    }
+
+    LaunchedEffect(uid) {
         db.collection("users")
-            .document("testUser")
+            .document(uid)
             .get()
             .addOnSuccessListener { doc ->
+
+                Log.d("PROFILE", "Exists = ${doc.exists()}")
+                Log.d("PROFILE", "Data = ${doc.data}")
+
                 val data = doc.toObject(UserProfile::class.java)
+
+                Log.d("PROFILE", "Object = $data")
+
                 if (data != null) {
                     userProfile = data
                     avatarColor = Color(data.avatarColor)
                 }
+            }
+            .addOnFailureListener {
+                Log.e("PROFILE", "Firestore error", it)
             }
     }
 
@@ -85,22 +151,39 @@ fun ProfileDetailsScreen(navController: NavController) {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
-                    Box(
-                        modifier = Modifier
-                            .size(110.dp)
-                            .clip(CircleShape)
-                            .background(avatarColor)
-                            .border(4.dp, MaterialTheme.colorScheme.primary, CircleShape)
-                            .clickable {
-                                avatarColor =
-                                    if (avatarColor == Color(0xFF3F51B5))
-                                        Color(0xFFE91E63)
-                                    else
-                                        Color(0xFF3F51B5)
-                            },
-                        contentAlignment = Alignment.Center
+                    if (userProfile.avatarUrl.isNotEmpty()) {
+
+                        AsyncImage(
+                            model = userProfile.avatarUrl,
+                            contentDescription = "Avatar",
+                            modifier = Modifier
+                                .size(110.dp)
+                                .clip(CircleShape)
+                                .border(4.dp, MaterialTheme.colorScheme.primary, CircleShape),
+                            contentScale = ContentScale.Crop
+                        )
+
+                    } else {
+
+                        Box(
+                            modifier = Modifier
+                                .size(110.dp)
+                                .clip(CircleShape)
+                                .background(avatarColor)
+                                .border(4.dp, MaterialTheme.colorScheme.primary, CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("Avatar", color = Color.White)
+                        }
+
+                    }
+
+                    Button(
+                        onClick = {
+                            launcher.launch("image/*")
+                        }
                     ) {
-                        Text("Avatar", color = Color.White)
+                        Text("Promeni avatar")
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -278,15 +361,6 @@ fun ProfileDetailsScreen(navController: NavController) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Nazad")
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            OutlinedButton(
-                onClick = { navController.navigate("login") },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Logout")
             }
         }
     }

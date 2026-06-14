@@ -13,5 +13,6 @@ data class UserProfile(
     val winRate: Int = 0,
     val lossRate: Int = 0,
     var password: String = "",
-    var isEmailVerified: Boolean = false
+    var isEmailVerified: Boolean = false,
+    val avatarUrl: String = ""
 )

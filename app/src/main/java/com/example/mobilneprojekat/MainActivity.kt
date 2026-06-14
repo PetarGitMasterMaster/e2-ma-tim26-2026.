@@ -19,37 +19,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //brboc
-        FirebaseFirestore.getInstance()
-        val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
 
-        val user = hashMapOf(
-            "username" to "player1",
-            "email" to "player1@gmail.com",
-            "tokens" to 120,
-            "stars" to 54,
-            "league" to "Gold 🏆",
-            "region" to "Srbija",
-            "password" to "Cane",
-            "avatarColor" to 0xFF3F51B5,
-            "stats" to mapOf(
-                "koZnaZna" to 72,
-                "mojBroj" to 61,
-                "korakPoKorak" to 55,
-                "asocijacije" to 80,
-                "skocko" to 47,
-                "spojnica" to 91
-            ),
-            "totalGames" to 248,
-            "winRate" to 64,
-            "lossRate" to 36
-        )
-
-        db.collection("users")
-            .document("testUser")   // hardkodovan ID za sada
-            .set(user)
-
-        //brboc
         setContent {
             MaterialTheme {
                 AppNavigation()
