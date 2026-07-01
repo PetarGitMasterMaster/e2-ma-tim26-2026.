@@ -11,12 +11,21 @@ object MatchRepository {
     private val db = FirebaseFirestore.getInstance()
 
     fun parseMatch(snapshot: DocumentSnapshot): OnlineMatch {
-        @Suppress("UNCHECKED_CAST")
-        val numbers = snapshot.get("generatedNumbers") as? List<Long>
-        @Suppress("UNCHECKED_CAST")
-        val matches = snapshot.get("matches") as? List<String>
-        @Suppress("UNCHECKED_CAST")
-        val rightOrder = snapshot.get("rightOrder") as? List<String>
+        val numbers = (snapshot.get("generatedNumbers") as? List<*>)
+            ?.mapNotNull { (it as? Number)?.toInt() }
+            ?: emptyList()
+
+        val matches = (snapshot.get("matches") as? List<*>)
+            ?.mapNotNull { it as? String }
+            ?: emptyList()
+
+        val rightOrder = (snapshot.get("rightOrder") as? List<*>)
+            ?.mapNotNull { it as? String }
+            ?: emptyList()
+
+        val leftOrder = (snapshot.get("leftOrder") as? List<*>)
+            ?.mapNotNull { it as? String }
+            ?: emptyList()
 
         return OnlineMatch(
             id = snapshot.id,
@@ -24,23 +33,37 @@ object MatchRepository {
             player2 = snapshot.getString("player2"),
             status = snapshot.getString("status") ?: "waiting",
             gameType = snapshot.getString("gameType") ?: "",
+
             player1Score = snapshot.getLong("player1Score")?.toInt() ?: 0,
             player2Score = snapshot.getLong("player2Score")?.toInt() ?: 0,
+
             currentPlayer = snapshot.getLong("currentPlayer")?.toInt() ?: 1,
             round = snapshot.getLong("round")?.toInt() ?: 1,
             phase = snapshot.getString("phase") ?: "playing",
+
             puzzleIndex = snapshot.getLong("puzzleIndex")?.toInt() ?: 0,
             revealedHints = snapshot.getLong("revealedHints")?.toInt() ?: 1,
+
             targetNumber = snapshot.getLong("targetNumber")?.toInt(),
-            generatedNumbers = numbers?.map { it.toInt() } ?: emptyList(),
+            generatedNumbers = numbers,
             player1Result = snapshot.getLong("player1Result")?.toInt() ?: 0,
             player2Result = snapshot.getLong("player2Result")?.toInt() ?: 0,
+
             questionIndex = snapshot.getLong("questionIndex")?.toInt() ?: 0,
+
             currentIndex = snapshot.getLong("currentIndex")?.toInt() ?: 0,
-            matches = matches ?: emptyList(),
-            rightOrder = rightOrder ?: emptyList(),
+            matches = matches,
+            rightOrder = rightOrder,
+            leftOrder = leftOrder,
+            secondChance = snapshot.getBoolean("secondChance") ?: false,
+
             roundStartedAt = snapshot.getLong("roundStartedAt") ?: 0L,
-            message = snapshot.getString("message") ?: ""
+            message = snapshot.getString("message") ?: "",
+
+            player1Answer = snapshot.getString("player1Answer") ?: "",
+            player2Answer = snapshot.getString("player2Answer") ?: "",
+            player1AnsweredAt = snapshot.getLong("player1AnsweredAt") ?: 0L,
+            player2AnsweredAt = snapshot.getLong("player2AnsweredAt") ?: 0L
         )
     }
 
@@ -78,18 +101,26 @@ object MatchRepository {
                             mapOf(
                                 "player2" to uid,
                                 "status" to "active",
-                                "roundStartedAt" to System.currentTimeMillis()
+                                "roundStartedAt" to System.currentTimeMillis(),
+
+                                "player1Answer" to "",
+                                "player2Answer" to "",
+                                "player1AnsweredAt" to 0L,
+                                "player2AnsweredAt" to 0L,
+
+                                "phase" to "playing",
+                                "message" to ""
                             )
                         )
                         .addOnSuccessListener { onMatchId(matchId) }
                         .addOnFailureListener { onError(it.message ?: "Greška pri pridruživanju") }
-                        .addOnFailureListener { onError(it.message ?: "Greška pri pridruživanju") }
                 } else {
                     val seed = System.currentTimeMillis()
                     val (target, numbers) = GameData.generateMojBrojNumbers(seed)
-                    val rightOrder = GameData.spojnicePairs.map { it.second }.shuffled(
-                        kotlin.random.Random(seed)
-                    )
+                    val random = kotlin.random.Random(seed)
+
+                    val leftOrder = GameData.spojnicePairs.map { it.first }.shuffled(random)
+                    val rightOrder = GameData.spojnicePairs.map { it.second }.shuffled(random)
 
                     val newMatch = hashMapOf(
                         "player1" to uid,
@@ -113,7 +144,14 @@ object MatchRepository {
                         "rightOrder" to rightOrder,
                         "roundStartedAt" to System.currentTimeMillis(),
                         "message" to "",
-                        "seed" to seed
+                        "seed" to seed,
+                        "leftOrder" to leftOrder,
+                        "secondChance" to false,
+
+                        "player1Answer" to "",
+                        "player2Answer" to "",
+                        "player1AnsweredAt" to 0L,
+                        "player2AnsweredAt" to 0L,
                     )
 
                     db.collection("matches")
