@@ -25,64 +25,94 @@ fun SelectScreen(navController: NavController) {
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedButton(
-            onClick = {
-                navController.navigate("profil")
-            },
+            onClick = { navController.navigate("profil") },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Profile Details")
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text("Lokalno (1 uređaj)", style = MaterialTheme.typography.titleMedium)
+        Spacer(modifier = Modifier.height(8.dp))
 
         Button(
-            onClick = {
-                navController.navigate("korak")
-            },
+            onClick = { navController.navigate("korak") },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Korak po korak")
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         Button(
-            onClick = {
-                navController.navigate("mojbroj")
-            },
+            onClick = { navController.navigate("mojbroj") },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Moj broj")
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         Button(
-            onClick = {
-                navController.navigate("koznazna")
-            },
+            onClick = { navController.navigate("koznazna") },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Ko zna zna")
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         Button(
-            onClick = {
-                navController.navigate("spojnice")
-            },
+            onClick = { navController.navigate("spojnice") },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Spojnice")
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text("Online (2 uređaja)", style = MaterialTheme.typography.titleMedium)
+        Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedButton(
-            onClick = {
-                navController.navigate("login")
-            },
+            onClick = { navController.navigate("matchmake/korak") },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Korak po korak — Online")
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        OutlinedButton(
+            onClick = { navController.navigate("matchmake/mojbroj") },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Moj broj — Online")
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        OutlinedButton(
+            onClick = { navController.navigate("matchmake/koznazna") },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Ko zna zna — Online")
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        OutlinedButton(
+            onClick = { navController.navigate("matchmake/spojnice") },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Spojnice — Online")
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        OutlinedButton(
+            onClick = { navController.navigate("login") },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Logout")
